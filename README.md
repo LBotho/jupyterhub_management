@@ -2,7 +2,6 @@
 
 > **Note:**
 > Projet réalisé dans le cadre de notre projet de fin de quatrième année à l'ISEN Brest
-> Toutes les critiques sont bienvenues !
 > Loïc Bothorel & Paul Michaud
 
 
