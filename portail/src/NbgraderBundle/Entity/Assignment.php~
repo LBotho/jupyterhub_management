@@ -1,0 +1,63 @@
+<?php
+
+namespace NbgraderBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+
+/**
+ * Assignment
+ *
+ * @ORM\Table(name="assignment")
+ * @ORM\Entity(repositoryClass="NbgraderBundle\Repository\AssignmentRepository")
+ */
+class Assignment
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    private $lesson;
+
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    private $name;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\NotebooksBundle\Entity\Notebook", inversedBy="assignments")
+     * @ORM\JoinColumn(name="notebook", referencedColumnName="id")
+     */
+    private $notebook;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\UserBundle\Entity\YearGroup")
+     * @ORM\JoinColumn(name="yearGroup_id", referencedColumnName="id")
+     */
+    private $yearGroup;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="\UserBundle\Entity\SubGroup", inversedBy="assignments")
+     * @ORM\JoinTable(name="assignments_subGroups")
+     */
+    private $subGroups;
+
+    public function __construct()
+    {
+        $this->yearGroups = new ArrayCollection();
+        $this->subGroups = new ArrayCollection();
+    }
+
+    public function __toString()
+    {
+        return $this->getName();
+    }
+}

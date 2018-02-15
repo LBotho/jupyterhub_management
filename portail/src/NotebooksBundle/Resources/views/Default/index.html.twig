@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <!-- Page Heading -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                Gestion des des notebooks
+            </h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+          <a class="btn btn-success" href="{{ path('synchronizeNotebooks') }}" data-toggle="modal" data-target="#loaderModal" data-backdrop="static"><i class="fa fa-refresh" aria-hidden="true"></i> Synchroniser avec le drive</a>
+
+          <!-- Modal -->
+          <div class="modal fade" id="loaderModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title text-center" id="myModalLabel">Veuillez patienter</h4>
+                </div>
+                <div class="modal-body text-center">
+                    <i class="fa fa-spinner fa-pulse fa-4x fa-fw"></i>
+                    <span class="sr-only">Loading...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="col-md-3 col-md-offset-5">
+            <div class="form-group has-feedback">
+                <input id="searchNotebooks" type="text" class="form-control" placeholder="Rechercher" />
+                <i class="fa fa-search form-control-feedback"></i>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <table id="tableNotebooks" class="table table-striped">
+              <thead>
+                  <tr class="head">
+                      <th>Id</th>
+                      <th>Label</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for notebook in notebooks %}
+                  <tr>
+                      <td>{{ notebook.id }}</td>
+                      <td>{{ notebook.label }}</td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,43 @@
+<?php
+namespace UserBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="yearGroup")
+ */
+class YearGroup {
+    /**
+     * @ORM\Column(type="string")
+     * @ORM\Id
+     */
+    private $id;
+
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $label;
+
+    /**
+     * @ORM\OneToMany(targetEntity="User", mappedBy="yearGroup")
+     */
+    private $users;
+
+    /**
+     * @ORM\OneToMany(targetEntity="SubGroup", mappedBy="yearGroup")
+     */
+    private $subGroups;
+
+    public function __construct()
+    {
+        $this->users = new ArrayCollection();
+        $this->assignments = new ArrayCollection();
+    }
+
+    public function __toString()
+    {
+        return $this->getLabel();
+    }
+}

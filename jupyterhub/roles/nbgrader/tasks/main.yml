@@ -1,0 +1,30 @@
+---
+- name: Install nbgrader
+  pip:
+    name: nbgrader
+    executable: pip3
+  become: yes
+
+- name: nbextension  install
+  shell: jupyter nbextension install --system --py nbgrader
+  become: yes
+
+- name: nbextension enable
+  shell: jupyter nbextension enable --system --py nbgrader
+  become: yes
+
+- name: nbgrader extension install
+  shell: jupyter serverextension enable --system --py nbgrader
+  become: yes
+
+- name: nbgrader extension activate
+  shell: nbgrader extension activate
+  become: yes
+
+- name: Create /srv/nbgrader/exchange
+  file:
+    path: /srv/nbgrader/exchange
+    state: directory
+    group: jhub
+    mode: 0775
+  become: yes

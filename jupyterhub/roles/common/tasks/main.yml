@@ -1,0 +1,137 @@
+---
+- name: Set local timezone
+  copy:
+    content: "{{ timezone }}"
+    dest: /etc/timezone
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  notify: update tzdata
+  become: yes
+
+- name: Install NTP (and update apt cache for the first install)
+  apt:
+    name: ntp
+  become: yes
+
+- name: Start the ntp service
+  service:
+    name: ntp
+    state: started
+  become: yes
+
+
+- name: upload pip installer
+  copy:
+    src: files/get-pip.py
+    dest: /root/get-pip.py
+    owner: root
+    group: root
+    mode: 0600
+
+#Will say requirements already up-to-date if it already installed
+- name: install python3-pip
+  shell: python3 ./get-pip.py
+  become: yes
+  register: pip_status
+
+- name: Python3 pip status
+  debug: msg="{{ pip_status.stdout_lines }}"
+
+
+- name: update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: install packages with apt
+  apt: name={{ item }}
+  with_items:
+    - git
+    - python3-pip
+    - mc
+    - htop
+    - ncdu
+    - ffmpeg
+    - pandoc
+    - texlive-fonts-recommended
+    - texmaker
+    - texlive-xetex
+    - ocaml                        #iocaml
+    - ocaml-native-compilers
+    - libssl-dev
+    - libffi-dev
+    - libzmq3-dev
+    - libgmp-dev
+    - m4
+    - mercurial
+    - darcs
+    - software-properties-common
+    - pkg-config
+    - opam
+    - python3-numpy               #Scipy
+    - python3-matplotlib
+    - python3-scipy
+    - python3-pandas
+    - sqlite3                     #ipython-sql
+    - postgresql                  #psql
+    - libpq-dev
+    - python-psycopg2
+    - composer                    #symfony
+    - php-xml
+    - php7.0-mysql
+    - php7.0-fpm
+    - python-mysqldb
+    - scilab
+
+  become: yes
+
+- name: install packages with pip
+  pip:
+    executable: pip3
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - sympy
+    - nose
+    - pyprimes
+    - psycopg2
+    - ipython-sql
+    - scilab_kernel
+    - jupyter-c-kernel
+  become: yes
+
+
+- name: Install Supervisor
+  apt:
+    name: supervisor
+  become: yes
+
+- name: Start supervisor service
+  service:
+    name: supervisor
+    state: started
+  become: yes
+
+- name: add npm repo
+  apt_repository:
+    repo: deb  http://ftp.us.debian.org/debian wheezy-backports main
+    state: present
+
+- name: Install Node.js
+  apt:
+    name: nodejs-legacy
+  become: yes
+
+- name: Check if npm is installed
+  command: npm version
+  register: npm_check
+
+- name: npm status
+  debug:
+    var: npm_check
+
+- name: install npm
+  script: files/install_npm.sh
+  when: '"ares: " not in npm_check.stdout'

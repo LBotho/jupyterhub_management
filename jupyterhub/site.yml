@@ -1,0 +1,22 @@
+---
+# This playbook deploys the whole application stack
+
+- hosts: "{{ variable_host | default('web') }}"
+
+  gather_facts: no
+
+  pre_tasks:
+    - name: 'install python'
+      raw: apt-get update && apt-get -y install python-simplejson
+
+  roles:
+    - common
+    - admin_user
+    - postgres
+    - nginx
+    - jupyter
+    - nbgrader
+    - jupyterhub
+    # - gdrive
+    - mysql
+    - symfony

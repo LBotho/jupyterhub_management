@@ -1,0 +1,16 @@
+[program:jupyterhub]
+command=/usr/local/bin/jupyterhub
+directory=/home/jhubuser/jhub
+user=jhubuser
+environment=
+  CAML_LD_LIBRARY_PATH="/home/jhubuser/.opam/system/lib/stublibs:/usr/lib/ocaml/stublibs",
+  MANPATH=":/home/jhubuser/.opam/system/man",
+  PERL5LIB="/home/jhubuser/.opam/system/lib/perl5",
+  OCAML_TOPLEVEL_PATH="/home/jhubuser/.opam/system/lib/toplevel",
+  PATH="/home/jhubuser/.opam/system/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
+autostart=true
+autorestart=true
+startretries=3
+redirect_stderr=True
+stdout_logfile=/home/jhubuser/jhub/output.log
+stderr_logfile=/home/jhubuser/jhub/output.log

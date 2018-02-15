@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="error-template">
+            <h1>Oops! Une erreur est survenue. <i class="fa fa-frown-o" aria-hidden="true"></i></h1>
+            <h2>Le serveur a retourné : "{{ status_code }} {{ status_text }}".</h2>
+            <div class="error-details">
+                Quelque chose est cassé. Veuillez contacter l'administrateur afin de
+                résoudre le problème au plus vite. Désolé pour les inconvénients causés.
+            </div>
+            <div class="error-actions">
+                <a href="{{ path('dashboard') }}" class="btn btn-primary btn-lg"><i class="fa fa-home" aria-hidden="true"></i> Ramenez moi à l'accueil</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

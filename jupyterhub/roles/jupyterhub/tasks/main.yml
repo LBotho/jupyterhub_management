@@ -1,0 +1,85 @@
+- name: Create /usr/local/share/jhub directory
+  file:
+    path: /usr/local/share/jhub
+    state: directory
+  become: yes
+
+- name: Copy files in /usr/local/share/jhub
+  copy:
+    src: files/share/
+    dest: /usr/local/share/jhub
+  become: yes
+
+- name: Copy mc-wrapper.sh
+  copy:
+    src: files/mc-wrapper.sh
+    dest: /usr/local/bin/mc-wrapper.sh
+  become: yes
+
+- name: Add jhub group to user admin groups
+  user:
+    name: "jhubuser"
+    groups: jhub
+    append: yes
+  become: yes
+
+- name: Setup Ipython config
+  copy:
+    src: files/.ipython
+    dest: /home/jhubuser
+
+- name: Setup Jupyter config
+  copy:
+    src: files/.jupyter
+    dest: /home/jhubuser
+
+- name: Create directory for user admin
+  file:
+    path: /home/jhubuser/jhub
+    state: directory
+    mode: 0770
+
+- name: Create directory for course
+  file:
+    path: /home/jhubuser/cours
+    state: directory
+    mode: 0770
+
+- name: Create directory for groups
+  file:
+    path: /home/jhubuser/groupes
+    state: directory
+    mode: 0755
+
+- name: Copy logo image
+  copy:
+    src: images/{{ logo }}
+    dest: /home/jhubuser/jhub/{{ logo }}
+
+- name: Fix permissions
+  file:
+    path: /home/jhubuser
+    owner: "jhubuser"
+    group: "jhubuser"
+    recurse: yes
+
+- name: Setup Jupyterhub config
+  template:
+    src: templates/jupyterhub_config.py.j2
+    dest: /home/jhubuser/jhub/jupyterhub_config.py
+
+- name: Setup supervisor config
+  template:
+    src: templates/supervisor.conf.j2
+    dest: /etc/supervisor/conf.d/jhubuser.conf
+  become: yes
+
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+  become: yes
+
+- name: restart supervisor
+  shell: /etc/init.d/supervisor restart && sleep 5 && supervisorctl restart jupyterhub
+  become: yes

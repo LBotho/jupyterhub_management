@@ -1,0 +1,29 @@
+body{
+    background-color:#fff;
+}
+
+/* ISEN LOGO */
+#logo_isen {
+  height: 80px;
+  position: fixed;
+  bottom: 20px;
+  left: 10px;
+}
+
+/* SEARCH ICON */
+.fa-search {
+    margin-top: 10px;
+}
+
+/* CUSTOM ERROR PAGES */
+.error-template {
+    padding: 40px 15px;
+    text-align: center;
+}
+.error-actions {
+    margin-top:15px;
+    margin-bottom:15px;
+}
+.error-actions .btn {
+    margin-right:10px;
+}

@@ -1,0 +1,89 @@
+/users
+  Promotions
+
+    Barre de recherche
+
+    Ajouter une promotion
+      Raccourci incorrect (t<2)
+      Label inccorect (t<2)
+      Bouton annuler
+      Ajouter une promotion
+
+    Editer une promotion
+      Label incorrect (t<2)
+      Label correct
+      Raccourci non modifiable
+      Bouton annuler
+      Label et promotion correct
+
+  Groupes
+
+    Barre de recherche
+
+    Ajouter un groupe
+      Raccourcis incorrect (format)
+      Label inccorect      (t<2)
+      Promotion inccorect  (vide)
+      Tout correct
+      Bouton annuler
+
+    Editer un groupe
+      Raccourcis non modifiable
+      Promotion non modifiable
+      Label incorrect (t<2)
+      Tout correct
+
+  Utilisateurs
+
+    Ajouter un utilisateurs
+      Identifiant incorrect                     (Majuscule && t<2)
+      Prénom incorrect                          (t<2)
+      Nom incorrect                             (t<2)
+      Mail incorrect                            (format)
+      Promotion incorrecte                      (vide)
+      Groupes incorrect                         (groupe n'appartenant pas à la promotion précédente)
+      Utilisateur valide 1 promotion 0 groupe
+      Utilisateur valide 1 promotion 1 groupe
+      Utilisateur valide 1 promotion 2 groupe
+      Bouton annuler
+
+    Barre de recherche
+
+    Editer un utilisateur
+      Bouton annuler
+      Changer le prénom
+      Changer le nom
+      Changer le mail
+      Changer la promotion sans changer le groupe
+      Changer la promotion et mettre 1 groupe
+      Changer la promition et mettre 2 groupes
+      Ajouter 1 groupe
+      Ajouter 2 groupes
+      Enlever 1 groupe
+
+    Supprimer un utilisateur
+      Bouton annuler
+      Bouton confirmer
+
+  Groupes
+
+/notebooks
+
+  Barre de recherche
+
+  Bouton synchroniser
+    Modal se ferme après 120 secondes
+    Les fichiers du drive sont bien synchronisés et affichés
+
+/nbgrader
+  Barre de recherche
+
+  Créer un devoir
+    Nom devoir incorrect (t<2 | espace)
+    Nom cours incorrect (t<2 | espace)
+    Notebook non selectionnée
+    Promotion non selectionnée
+
+
+  Récupérer les notes
+    Télécharge un fichier .csv contenant les notes

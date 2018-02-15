@@ -1,0 +1,39 @@
+---
+- name: upload gdrive binary
+  copy:
+      src: tools/gdrive
+      dest: "{{ admin_root }}/gdrive"
+      owner: jhubuser
+      group: jhubuser
+      mode: 0655
+  become: yes
+
+- name: Ensures {{ admin_root }}/.gdrive dir exists
+  file:
+    path: "{{ admin_root }}/.gdrive"
+    state: directory
+
+- name: upload token file
+  copy:
+      src: files/token_v2.json
+      dest: "{{ admin_root }}/.gdrive/token_v2.json"
+      owner: jhubuser
+      group: jhubuser
+      mode: 0600
+  become: yes
+
+- name: download courses
+  shell: "{{ admin_root }}/gdrive download {{ PROBA_id }} --config {{ admin_root }}/.gdrive --recursive --force --path {{ admin_root }}/cours"
+  args:
+    chdir: "{{ admin_root }}"
+  become: yes
+  ignore_errors: yes
+
+
+- name: fix permissions
+  file:
+    dest:  "{{ admin_root }}/cours"
+    owner: jhubuser
+    group: jhubuser
+    mode: 0755
+    recurse: yes

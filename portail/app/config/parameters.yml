@@ -1,0 +1,15 @@
+# This file is auto-generated during the composer install
+parameters:
+    database_host: localhost
+    database_port: null
+    database_name: portail
+    database_user: root
+    database_password: isen29
+    mailer_transport: smtp
+    mailer_host: 127.0.0.1
+    mailer_user: null
+    mailer_password: null
+    secret: 16a5c165743f84d43887af57b8dfae1fe8f5003a
+    scriptsPath: /home/jhubuser/bin/
+    jhubuserPath: /home/jhubuser/
+    idNotebooksDirectory: 0BwzIa7NijAtFQk1vWW9oaUFRSDQ

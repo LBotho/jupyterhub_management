@@ -1,0 +1,14 @@
+- name: Deploy mysql install script
+  copy:
+    src: files/installMysql.sh
+    dest: /root/installMysql.sh
+
+- name: Execute mysql install
+  shell: bash /root/installMysql.sh
+
+- name: Start the MySQL service
+  become: yes
+  service:
+    name: mysql
+    state: started
+    enabled: true

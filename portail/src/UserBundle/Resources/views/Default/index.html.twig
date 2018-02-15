@@ -1,0 +1,579 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-lg-12">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist" id="usersTabs">
+                <li role="presentation" class="active"><a href="#usersTab" aria-controls="usersTab" role="tab" data-toggle="tab">Utilisateurs</a></li>
+                <li role="presentation"><a href="#yearGroupsTab" aria-controls="yearGroupsTab" role="tab" data-toggle="tab">Promotions</a></li>
+                <li role="presentation"><a href="#subGroupsTab" aria-controls="subGroupsTab" role="tab" data-toggle="tab">Groupes</a></li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade in active" id="usersTab">
+                    <!-- Page Heading -->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h1 class="page-header">
+                                Gestion des utilisateurs
+                            </h1>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                          <a id="createUser" class="btn btn-success" data-toggle="modal" data-target="#createUserModal"><i class="fa fa-plus" aria-hidden="true"></i> Ajouter</a>
+                          <a id="importUsers" class="btn btn-success" data-toggle="modal" data-target="#importUsersModal"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Importer depuis un .csv</a>
+                        </div>
+                        <div class="col-md-3 col-md-offset-5">
+                            <div class="form-group has-feedback">
+                                <input id="searchUsers" type="text" class="form-control" placeholder="Rechercher" />
+                                <i class="fa fa-search form-control-feedback"></i>
+                            </div>
+                        </div>
+
+                        <!-- Create User Modal -->
+                        <div class="modal fade" id="createUserModal" tabindex="-1" role="dialog" aria-labelledby="createUserModalLabel">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel">Ajout d'un élève</h4>
+                              </div>
+                              <div class="modal-body">
+                                  <form id="createUserForm" class="form-horizontal userForm" action="{{ path('createUser') }}" method="post">
+                                    <fieldset>
+                                        <!-- Identifiant -->
+                                        <div class="form-group">
+                                          <label class="col-md-4 control-label" for="identifiant">Identifiant</label>
+                                          <div class="col-md-6">
+                                            <input id="createUserId" name="id" autocomplete="off" placeholder="identifiant" class="form-control input-md" required type="text">
+                                            <span class="help-block">L'identifiant doit être unique</span>
+                                          </div>
+                                        </div>
+
+                                        <!-- Prénom -->
+                                        <div class="form-group">
+                                          <label class="col-md-4 control-label" for="prenom">Prénom</label>
+                                          <div class="col-md-6">
+                                            <input id="createUserFirstName" name="firstName" autocomplete="off" placeholder="prénom" class="form-control input-md" required type="text">
+                                          </div>
+                                        </div>
+
+                                        <!-- Nom -->
+                                        <div class="form-group">
+                                          <label class="col-md-4 control-label" for="nom">Nom</label>
+                                          <div class="col-md-6">
+                                            <input id="createUserLastName" name="lastName" autocomplete="off" placeholder="nom" class="form-control input-md" required type="text">
+                                          </div>
+                                        </div>
+
+                                        <!-- Mail -->
+                                        <div class="form-group">
+                                          <label class="col-md-4 control-label" for="mail">Mail</label>
+                                          <div class="col-md-6">
+                                            <input id="createUserMail" name="mail" placeholder="mail" autocomplete="off" class="form-control input-md" required type="text">
+                                          </div>
+                                        </div>
+
+                                        <!-- YearGroup -->
+                                        <div class="form-group">
+                                          <label class="col-md-4 control-label" for="group">Promotion</label>
+                                          <div class="col-md-6">
+                                            <select onchange="disableAllWrongOptions1()" id="yearGroupSelect1" name="yearGroup" class="form-control" required autocomplete="off">
+                                              <option selected="selected" value=""/>
+                                              {% for yearGroup in yearGroups %}
+                                                <option value="{{ yearGroup.id }}">{{ yearGroup.label }}</option>
+                                              {% endfor %}
+                                            </select>
+                                          </div>
+                                        </div>
+
+                                        <!-- Subgroup(s) -->
+                                        <div class="form-group">
+                                          <label class="col-md-4 control-label" for="subgroups">Groupes</label>
+                                          <div class="col-md-6">
+                                            <select id="subGroupsSelect1" name="subGroups[]" class="form-control" multiple="multiple" autocomplete="off">
+                                              {% for subGroup in subGroups %}
+                                                <option value="{{ subGroup.id }}" disabled>{{ subGroup.label }}</option>
+                                              {% endfor %}
+                                            </select>
+                                          </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                                <button type="submit" class="btn btn-success" form="createUserForm">Valider</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Import Users Modal -->
+                        <div class="modal fade" id="importUsersModal" tabindex="-1" role="dialog" aria-labelledby="importUsersModalLabel">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel">Importation d'élèves depuis un fichier .csv</h4>
+                              </div>
+                              <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-12 text-center">
+                                        <a href="{{ asset('files/usersTemplate.csv') }}" class="btn btn-primary" download><i class="fa fa-download" aria-hidden="true"></i> Télécharger le template</a>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <p>
+                                            <br><i class="fa fa-exclamation-triangle" aria-hidden="true"></i>Veuillez utiliser un fichier .csv suivant la forme du template téléchargeable depuis ce bouton. Il doit contenir l'identifiant, le prénom, le nom, l'adresse mail, la promotion puis les groupes de l'utilisateur
+                                        </p>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                  <form id="importUsersForm" enctype="multipart/form-data" class="form-horizontal" action="{{ path('importUsers') }}" method="post">
+                                    <fieldset>
+                                       <!-- File Button -->
+                                       <div class="form-group">
+                                         <label class="col-md-4 control-label" for="filebutton">Fichier .csv</label>
+                                         <div class="col-md-6">
+                                           <input id="filebutton" name="usersFile" class="input-file" type="file" autocomplete="off">
+                                         </div>
+                                       </div>
+                                    </fieldset>
+                                  </form>
+                                </div>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                                <button type="submit" class="btn btn-success" form="importUsersForm">Valider</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table id="tableUsers" class="table table-striped">
+                              <thead>
+                                  <tr class="head">
+                                      <th>Identifiant</th>
+                                      <th>Prénom</th>
+                                      <th>Nom</th>
+                                      <th>Mail</th>
+                                      <th>Promotion</th>
+                                      <th>Groupe(s)</th>
+                                      <th>Actions</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  {% for user in users %}
+                                  <tr>
+                                      <td>{{ user.id }}</td>
+                                      <td>{{ user.firstName }}</td>
+                                      <td>{{ user.lastName }}</td>
+                                      <td>{{ user.mail }}</td>
+                                      <td>{{ user.yearGroup.id }}</td>
+                                      <td>
+                                           {% for subGroup in user.subGroups %}
+                                                {% if loop.index < user.subGroups|length %}
+                                                    {{ subGroup.id }},
+                                                {% else %}
+                                                    {{ subGroup.id }}
+                                                {% endif %}
+                                           {% endfor %}
+                                      </td>
+                                      <td>
+                                          <a id="editUser_{{ user.id }}" class="btn btn-xs btn-warning" data-toggle="modal" data-target="#editUserModal{{ user.id }}"><i class="fa fa-pencil" aria-hidden="true"></i> Editer</a>
+                                          <a id="deleteUser_{{ user.id }}" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#deleteUserModal{{ user.id }}"><i class="fa fa-times" aria-hidden="true"></i> Supprimer</a>
+
+                                          <!-- Edit User Modal -->
+                                          <div class="modal fade" id="editUserModal{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel">
+                                            <div class="modal-dialog" role="document">
+                                              <div class="modal-content">
+                                                <div class="modal-header">
+                                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                  <h4 class="modal-title" id="myModalLabel">Modification de {{ user.firstName }} {{ user.lastName }}</h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form id="editUserForm{{ user.id }}" class="form-horizontal userForm" action="{{ path('editUser', {'id': user.id }) }}" method="post">
+                                                      <fieldset>
+                                                          <!-- Identifiant -->
+                                                          <div class="form-group">
+                                                            <label class="col-md-4 control-label" for="identifiant">Identifiant</label>
+                                                            <div class="col-md-6">
+                                                              <input id="id" name="id" autocomplete="off" placeholder="identifiant" class="form-control input-md" required type="text" value="{{ user.id }}" disabled>
+                                                            </div>
+                                                          </div>
+
+                                                          <!-- Prénom -->
+                                                          <div class="form-group">
+                                                            <label class="col-md-4 control-label" for="prenom">Prénom</label>
+                                                            <div class="col-md-6">
+                                                              <input id="firstName" name="firstName" autocomplete="off" placeholder="prénom" class="form-control input-md" required type="text" value="{{ user.firstName }}">
+                                                            </div>
+                                                          </div>
+
+                                                          <!-- Nom -->
+                                                          <div class="form-group">
+                                                            <label class="col-md-4 control-label" for="nom">Nom</label>
+                                                            <div class="col-md-6">
+                                                              <input id="lastName" name="lastName" autocomplete="off" placeholder="nom" class="form-control input-md" required type="text" value="{{ user.lastName }}">
+                                                            </div>
+                                                          </div>
+
+                                                          <!-- Mail -->
+                                                          <div class="form-group">
+                                                            <label class="col-md-4 control-label" for="mail">Mail</label>
+                                                            <div class="col-md-6">
+                                                              <input id="mail" name="mail" placeholder="mail" autocomplete="off" class="form-control input-md" required type="text" value="{{ user.mail }}">
+                                                            </div>
+                                                          </div>
+
+                                                          <!-- YearGroup -->
+                                                          <div class="form-group">
+                                                            <label class="col-md-4 control-label" for="group">Promotion</label>
+                                                            <div class="col-md-6">
+                                                              <select id="yearGroupSelect2" onchange="disableAllWrongOptions2()" name="yearGroup" class="form-control" autocomplete="off" required>
+                                                                {% for yearGroup in yearGroups %}
+                                                                  {% if yearGroup.id == user.yearGroup.id %}
+                                                                    <option value="{{ yearGroup.id }}" selected>{{ yearGroup.label }}</option>
+                                                                  {% else %}
+                                                                    <option value="{{ yearGroup.id }}">{{ yearGroup.label }}</option>
+                                                                  {% endif %}
+                                                                {% endfor %}
+                                                              </select>
+                                                            </div>
+                                                          </div>
+
+                                                          <!-- Subgroup(s) -->
+                                                          <div class="form-group">
+                                                            <label class="col-md-4 control-label" for="subgroups">Groupes</label>
+                                                            <div class="col-md-6">
+                                                              <select id="subGroupsSelect2" name="subGroups[]" class="form-control" multiple="multiple" autocomplete="off">
+                                                                {% for subGroup in subGroups %}
+                                                                    {% if subGroup in user.subGroups %}
+                                                                        <option value="{{ subGroup.id }}" selected>{{ subGroup.label }}</option>
+                                                                    {% elseif subGroup.id matches '{^'~ user.yearGroup.id ~ '_[a-zA-Z0-9]{2,}$}' %}
+                                                                        <option value="{{ subGroup.id }}">{{ subGroup.label }}</option>
+                                                                    {% else %}
+                                                                        <option value="{{ subGroup.id }}" disabled>{{ subGroup.label }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                              </select>
+                                                            </div>
+                                                          </div>
+                                                      </fieldset>
+                                                  </form>
+                                                </div>
+                                                <div class="modal-footer">
+                                                  <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                                                  <button type="submit" class="btn btn-success" form="editUserForm{{ user.id }}">Valider</button>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          <!-- Delete User Modal -->
+                                          <div class="modal fade" id="deleteUserModal{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                                            <div class="modal-dialog" role="document">
+                                              <div class="modal-content">
+                                                <div class="modal-header">
+                                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                  <h4 class="modal-title" id="myModalLabel">Supprimer {{ user.id }} ?</h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                  Êtes-vous sûr de vouloir supprimer cet utilisateur ?
+                                                </div>
+                                                <div class="modal-footer">
+                                                  <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                                                  <a id="confirmDeleteUser_{{ user.id }}"type="button" class="btn btn-danger" href="{{ path('deleteUser', {'id': user.id }) }}">Confirmer</a>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                      </td>
+                                  </tr>
+                                  {% endfor %}
+                              </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="yearGroupsTab">
+                    <!-- Page Heading -->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h1 class="page-header">
+                                Gestion des promotions
+                            </h1>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                          <a class="btn btn-success" data-toggle="modal" data-target="#createYearGroupModal" id="addYearGroup"><i class="fa fa-plus" aria-hidden="true"></i> Ajouter</a>
+                        </div>
+                        <div class="col-md-3 col-md-offset-5">
+                            <div class="form-group has-feedback">
+                                <input id="searchYearGroups" type="text" class="form-control" placeholder="Rechercher" />
+                                <i class="fa fa-search form-control-feedback"></i>
+                            </div>
+                        </div>
+
+                        <!-- Create YearGroup Modal -->
+                        <div class="modal fade" id="createYearGroupModal" tabindex="-1" role="dialog" aria-labelledby="createYearGroupModalLabel">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel">Ajout d'une promotion</h4>
+                              </div>
+                              <div class="modal-body">
+                                  <form id="createYearGroupForm" class="form-horizontal yearGroupForm" action="{{ path('createYearGroup') }}" method="post">
+                                    <fieldset>
+                                    <!-- Id -->
+                                    <div class="form-group">
+                                      <label class="col-md-4 control-label" for="id">Raccourci</label>
+                                      <div class="col-md-6">
+                                        <input id="addYearGroupId" name="id" placeholder="raccourci" class="form-control input-md" required="" type="text" autocomplete="off">
+                                        <span class="help-block">Le raccourci doit être unique</span>
+                                      </div>
+                                    </div>
+
+                                    <!-- Label -->
+                                    <div class="form-group">
+                                      <label class="col-md-4 control-label" for="label">Label</label>
+                                      <div class="col-md-6">
+                                        <input id="label" name="label" placeholder="label" class="form-control input-md" required="" type="text" autocomplete="off">
+                                      </div>
+                                    </div>
+                                    </fieldset>
+                                  </form>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                                <button type="submit" class="btn btn-success" form="createYearGroupForm">Valider</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table id="tableYearGroups" class="table table-striped">
+                              <thead>
+                                  <tr class="head">
+                                      <th>Identifiant</th>
+                                      <th>Label</th>
+                                      <th>Actions</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  {% for yearGroup in yearGroups %}
+                                  <tr>
+                                      <td>{{ yearGroup.id }}</td>
+                                      <td>{{ yearGroup.label }}</td>
+                                      <td>
+                                          <a id="editYearGroupModal_{{ yearGroup.id }}" class="btn btn-xs btn-warning" data-toggle="modal" data-target="#editYearGroupModal{{ yearGroup.id }}"><i class="fa fa-pencil" aria-hidden="true"></i> Editer</a>
+
+                                          <!-- Edit YearGroup Modal -->
+                                          <div class="modal fade" id="editYearGroupModal{{ yearGroup.id }}" tabindex="-1" role="dialog" aria-labelledby="editYearGroupModalLabel">
+                                            <div class="modal-dialog" role="document">
+                                              <div class="modal-content">
+                                                <div class="modal-header">
+                                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                  <h4 class="modal-title" id="myModalLabel">Modification de la promotion {{ yearGroup.id }}</h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form id="editYearGroupForm{{ yearGroup.id }}" class="form-horizontal yearGroupForm" action="{{ path('editYearGroup', {'id': yearGroup.id }) }}" method="post">
+                                                      <fieldset>
+                                                      <!-- Id -->
+                                                      <div class="form-group">
+                                                        <label class="col-md-4 control-label" for="id">Raccourci</label>
+                                                        <div class="col-md-6">
+                                                          <input id="id" name="id" autocomplete="off" placeholder="raccourci" class="form-control input-md" required type="text" value="{{ yearGroup.id }}" disabled>
+                                                          <span class="help-block">Le raccourci doit être unique</span>
+                                                        </div>
+                                                      </div>
+
+                                                      <!-- Label -->
+                                                      <div class="form-group">
+                                                        <label class="col-md-4 control-label" for="label">Label</label>
+                                                        <div class="col-md-6">
+                                                          <input id="label" name="label" autocomplete="off" placeholder="label" class="form-control input-md" required type="text" value="{{ yearGroup.label }}">
+                                                        </div>
+                                                      </div>
+                                                      </fieldset>
+                                                    </form>
+                                                </div>
+                                                <div class="modal-footer">
+                                                  <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                                                  <button type="submit" class="btn btn-success" form="editYearGroupForm{{ yearGroup.id }}">Valider</button>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                      </td>
+                                  </tr>
+                                  {% endfor %}
+                              </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="subGroupsTab">
+                    <!-- Page Heading -->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h1 class="page-header">
+                                Gestion des groupes
+                            </h1>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                          <a id="createSubGroup" class="btn btn-success" data-toggle="modal" data-target="#createSubGroupModal"><i class="fa fa-plus" aria-hidden="true"></i> Ajouter</a>
+                        </div>
+                        <div class="col-md-3 col-md-offset-5">
+                            <div class="form-group has-feedback">
+                                <input id="searchSubGroups" type="text" class="form-control" placeholder="Rechercher" />
+                                <i class="fa fa-search form-control-feedback"></i>
+                            </div>
+                        </div>
+
+                        <!-- Create SubGroup Modal -->
+                        <div class="modal fade" id="createSubGroupModal" tabindex="-1" role="dialog" aria-labelledby="createSubGroupModalLabel">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel">Ajout d'un groupe</h4>
+                              </div>
+                              <div class="modal-body">
+                                  <form id="createSubGroupForm" class="form-horizontal subGroupsForm" action="{{ path('createSubGroup') }}" method="post">
+                                    <fieldset>
+                                    <!-- Id -->
+                                    <div class="form-group">
+                                      <label class="col-md-4 control-label" for="id">Raccourci</label>
+                                      <div class="col-md-6">
+                                        <input id="createSubGroupId" name="id" placeholder="raccourci" class="form-control input-md" required type="text" autocomplete="off">
+                                        <span class="help-block">Doit être unique, ex: ANNEE_GROUPE</span>
+                                      </div>
+                                    </div>
+
+                                    <!-- label -->
+                                    <div class="form-group">
+                                      <label class="col-md-4 control-label" for="label">Label</label>
+                                      <div class="col-md-6">
+                                        <input id="createSubGrouplabel" name="label" placeholder="label" class="form-control input-md" required type="text" autocomplete="off">
+                                      </div>
+                                    </div>
+
+                                    <!-- YearGroup -->
+                                    <div class="form-group">
+                                      <label class="col-md-4 control-label" for="group">Promotion</label>
+                                      <div class="col-md-6">
+                                        <select id="createYearGroup" name="yearGroup" class="form-control" required>
+                                          <option value="" selected="selected"/>
+                                          {% for yearGroup in yearGroups %}
+                                            <option value="{{ yearGroup.id }}">{{ yearGroup.label }}</option>
+                                          {% endfor %}
+                                        </select>
+                                      </div>
+                                    </div>
+                                    </fieldset>
+                                  </form>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                                <button type="submit" class="btn btn-success" form="createSubGroupForm">Valider</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table id="tableSubGroups" class="table table-striped">
+                              <thead>
+                                  <tr class="head">
+                                      <th>Identifiant</th>
+                                      <th>Label</th>
+                                      <th>Actions</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  {% for subGroup in subGroups %}
+                                  <tr>
+                                      <td>{{ subGroup.id }}</td>
+                                      <td>{{ subGroup.label }}</td>
+                                      <td>
+                                          <a id="editSubGroup_{{ subGroup.id }}" class="btn btn-xs btn-warning" data-toggle="modal" data-target="#editSubGroupModal{{ subGroup.id }}"><i class="fa fa-pencil" aria-hidden="true"></i> Editer</a>
+
+                                          <!-- Edit SubGroup Modal -->
+                                          <div class="modal fade" id="editSubGroupModal{{ subGroup.id }}" tabindex="-1" role="dialog" aria-labelledby="editSubGroupModalLabel">
+                                            <div class="modal-dialog" role="document">
+                                              <div class="modal-content">
+                                                <div class="modal-header">
+                                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                  <h4 class="modal-title" id="myModalLabel">Modification du groupe {{ subGroup.id }}</h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form id="editSubGroupForm{{ subGroup.id }}" class="form-horizontal subGroupsForm" action="{{ path('editSubGroup', {'id': subGroup.id }) }}" method="post">
+                                                      <fieldset>
+                                                      <!-- Id -->
+                                                      <div class="form-group">
+                                                        <label class="col-md-4 control-label" for="id">Raccourci</label>
+                                                        <div class="col-md-6">
+                                                          <input id="id" name="id" autocomplete="off" placeholder="raccourci" class="form-control input-md" required type="text" value="{{ subGroup.id }}" disabled>
+                                                          <span class="help-block">Doit être unique, ex: ANNEE_GROUPE</span>
+                                                        </div>
+                                                      </div>
+
+                                                      <!-- Label -->
+                                                      <div class="form-group">
+                                                        <label class="col-md-4 control-label" for="label">Label</label>
+                                                        <div class="col-md-6">
+                                                          <input id="label" name="label" autocomplete="off" placeholder="label" class="form-control input-md" required type="text" value="{{ subGroup.label }}">
+                                                        </div>
+                                                      </div>
+
+                                                      <!-- YearGroup -->
+                                                      <div class="form-group">
+                                                        <label class="col-md-4 control-label" for="group">Promotion</label>
+                                                        <div class="col-md-6">
+                                                          <select id="yearGroup" name="yearGroup" class="form-control" required disabled>
+                                                            {% for yearGroup in yearGroups %}
+                                                              {% if yearGroup.id == subGroup.yearGroup.id %}
+                                                                <option value="{{ yearGroup.id }}" selected>{{ yearGroup.label }}</option>
+                                                              {% else %}
+                                                                <option value="{{ yearGroup.id }}">{{ yearGroup.label }}</option>
+                                                              {% endif %}
+                                                            {% endfor %}
+                                                          </select>
+                                                        </div>
+                                                      </div>
+                                                      </fieldset>
+                                                    </form>
+                                                </div>
+                                                <div class="modal-footer">
+                                                  <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                                                  <button type="submit" class="btn btn-success" form="editSubGroupForm{{ subGroup.id }}">Valider</button>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                      </td>
+                                  </tr>
+                                  {% endfor %}
+                              </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

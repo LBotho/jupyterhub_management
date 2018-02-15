@@ -1,0 +1,76 @@
+---
+- name: Install Nginx
+  apt:
+    name: nginx
+  become: yes
+
+- name: Change timout configuration
+  copy:
+    src: templates/timeout.conf
+    dest: /etc/nginx/conf.d/timeout.conf
+  become: yes
+
+- name: Delete default keep alive
+  lineinfile:
+    dest: /etc/nginx/nginx.conf
+    state: absent
+    regexp: "^[ \t]*keepalive_timeout"
+
+- name: Remove default site config
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  become: yes
+
+- name: Create certificat directory
+  file:
+    path: /home/jhubuser/certificats/
+    owner: "jhubuser"
+    group: "jhubuser"
+    state: directory
+    mode: 0755
+
+- name: Copy ssl certificate
+  copy:
+    src: files/{{ certificate }}
+    dest: /home/jhubuser/certificats/fullchain.pem
+
+- name: Copy ssl certificate key
+  copy:
+    src: files/{{ certificate_key }}
+    dest: /home/jhubuser/certificats/privkey.pem
+
+- name: Copy dhgroup
+  copy:
+    src: files/{{ dhgroup }}
+    dest: /home/jhubuser/certificats/dhparams.pem
+
+- name: Setup jupyterhub nginx config
+  template:
+    src: templates/nginx.jupyterhub.conf
+    dest: /etc/nginx/sites-available/jupyterhub.conf
+  become: yes
+
+- name: Setup management nginx config
+  template:
+    src: templates/nginx.management.conf
+    dest: /etc/nginx/sites-available/management.conf
+  become: yes
+
+- name: Enable management site
+  file:
+    src: /etc/nginx/sites-available/management.conf
+    dest: /etc/nginx/sites-enabled/management.conf
+    state: link
+
+- name: Enable jupyterhub site
+  file:
+    src: /etc/nginx/sites-available/jupyterhub.conf
+    dest: /etc/nginx/sites-enabled/jupyterhub.conf
+    state: link
+
+- name: Adding www-data to jhubuser group
+  user:
+    name: www-data
+    group: "jhubuser"
+    append: yes

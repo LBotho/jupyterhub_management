@@ -1,0 +1,137 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <!-- Page Heading -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                Gestion de nbgrader
+            </h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+          <a id="createAssignmentButton" class="btn btn-success" data-toggle="modal" data-target="#createAssignmentModal"><i class="fa fa-plus" aria-hidden="true"></i> Créer un devoir</a>
+        </div>
+        <div class="col-md-3 col-md-offset-5">
+            <div class="form-group has-feedback">
+                <input id="searchAssignments" type="text" class="form-control" placeholder="Rechercher" />
+                <i class="fa fa-search form-control-feedback"></i>
+            </div>
+        </div>
+
+        <!-- Create Assignment Modal -->
+        <div class="modal fade" id="createAssignmentModal" tabindex="-1" role="dialog" aria-labelledby="createAssignmentModalLabel">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Création d'un devoir</h4>
+              </div>
+              <div class="modal-body">
+                  <form id="createAssignmentForm" class="form-horizontal assignmentForm" action="{{ path('createAssignment') }}" method="post">
+                    <fieldset>
+                        <!-- Assignment name -->
+                        <div class="form-group">
+                          <label class="col-md-4 control-label" for="assignmentName">Nom du devoir</label>
+                          <div class="col-md-6">
+                            <input id="assignmentName" name="assignmentName" autocomplete="off" placeholder="nom du devoir" class="form-control input-md" required type="text">
+                          </div>
+                        </div>
+
+                        <!-- Lesson -->
+                        <div class="form-group">
+                          <label class="col-md-4 control-label" for="nom">Nom du cours</label>
+                          <div class="col-md-6">
+                            <input id="lesson" name="lesson" autocomplete="off" placeholder="nom du cours" class="form-control input-md" required type="text">
+                          </div>
+                        </div>
+
+                        <!-- Notebook -->
+                        <div class="form-group">
+                          <label class="col-md-4 control-label" for="selectNotebook">Notebook</label>
+                          <div class="col-md-6">
+                            <select id="selectNotebook" name="notebook" class="form-control" autocomplete="off" required>
+                              <option value="" selected/>
+                              {% for notebook in notebooks %}
+                                <option value="{{ notebook.id }}">{{ notebook.label }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                        </div>
+
+                        <!-- Year Group -->
+                        <div class="form-group">
+                          <label class="col-md-4 control-label" for="selectYearGroup">Promotion</label>
+                          <div class="col-md-6">
+                            <select onchange="disableAllWrongOptions1()" id="yearGroupSelect1" name="yearGroup" class="form-control" autocomplete="off" required>
+                              <option value="" selected/>
+                              {% for yearGroup in yearGroups %}
+                                <option value="{{ yearGroup.id }}">{{ yearGroup.label }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                        </div>
+
+                        <!-- SubGroup(s) -->
+                        <div class="form-group">
+                          <label class="col-md-4 control-label" for="selectYearGroup">Groupe(s)</label>
+                          <div class="col-md-6">
+                            <select id="subGroupsSelect1" name="subGroups[]" class="form-control" multiple="multiple" autocomplete="off">
+                              {% for subGroup in subGroups %}
+                                <option value="{{ subGroup.id }}" disabled>{{ subGroup.label }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                        </div>
+
+                    </fieldset>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                <button id="validateAssignmentButton" type="submit" class="btn btn-success" form="createAssignmentForm">Valider</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <table id="tableAssignments" class="table table-striped">
+              <thead>
+                  <tr class="head">
+                      <th>Id</th>
+                      <th>Nom du devoir</th>
+                      <th>Cours associé</th>
+                      <th>Dossier source (Google Drive)</th>
+                      <th>Promotion</th>
+                      <th>Groupe(s)</th>
+                      <th>Actions</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for assignment in assignments %}
+                  <tr>
+                      <td>{{ assignment.id }}</td>
+                      <td>{{ assignment.name }}</td>
+                      <td>{{ assignment.lesson }}</td>
+                      <td>{{ assignment.notebook.label }}</td>
+                      <td>{{ assignment.YearGroup.label }}</td>
+                      <td>
+                           {% for subGroup in assignment.subGroups %}
+                                {% if loop.index < assignment.subGroups|length %}
+                                    {{ subGroup.id }},
+                                {% else %}
+                                    {{ subGroup.id }}
+                                {% endif %}
+                           {% endfor %}
+                      </td>
+                      <td><a href="{{ path('getMarks', { 'id': assignment.id }) }}" class="btn btn-xs btn-primary"><i class="fa fa-download" aria-hidden="true"></i>  Récupérer les notes</a></td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

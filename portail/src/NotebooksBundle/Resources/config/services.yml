@@ -1,0 +1,4 @@
+services:
+#    notebooks.example:
+#        class: NotebooksBundle\Example
+#        arguments: ["@service_id", "plain_value", "%parameter%"]

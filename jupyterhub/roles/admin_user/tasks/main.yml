@@ -1,0 +1,65 @@
+---
+- name: Setup default .bashrc
+  copy:
+    src: files/.bashrc
+    dest: /etc/skel/.bashrc
+  become: yes
+
+- name: Create group jhub
+  group:
+    name: jhub
+    state: present
+  become: yes
+
+- name: Create admin user
+  user:
+    name: "jhubuser"
+    shell: /bin/bash
+    system: yes
+    createhome: no
+    groups: shadow,jhub
+    password: "{{ admin_password }}"
+  become: yes
+
+- name: Create admin user directory
+  file:
+    path: /home/jhubuser/
+    owner: "jhubuser"
+    group: "jhubuser"
+    state: directory
+    mode: 0755
+
+- name: Create user log directory
+  file:
+    path: /home/jhubuser/logs/
+    owner: "jhubuser"
+    group: "jhubuser"
+    state: directory
+    mode: 0755
+
+- name: Setup .bashrc for admin user
+  copy:
+    src: files/.bashrc
+    dest: /home/jhubuser/.bashrc
+
+- name: Setup .bash_profile for admin user
+  copy:
+    src: files/.bash_profile
+    dest: /home/jhubuser/.bash_profile
+
+- name: ensure configure of sudoers base file
+  template:
+    src: sudoers-jhubuser.j2
+    dest: /etc/sudoers
+    mode: 0440
+    owner: root
+    group: root
+    validate: '/usr/sbin/visudo -cf %s'
+    
+- name: Copy scripts in jhubuser/bin
+  copy:
+    src: files/bin
+    dest: /home/jhubuser
+    owner: "jhubuser"
+    group: "jhubuser"
+    mode: 0750

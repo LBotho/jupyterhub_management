@@ -1,0 +1,102 @@
+---
+- name: Install configurable-http-proxy
+  npm:
+    name: configurable-http-proxy
+    global: yes
+  become: yes
+
+- name: Install Jupyterhub
+  pip:
+    name: jupyterhub
+    executable: pip3
+  become: yes
+
+- name: Install Jupyter
+  pip:
+    name: jupyter
+    executable: pip3
+  become: yes
+
+- name: Install sudospawner
+  pip:
+    name: sudospawner
+    executable: pip3
+  become: yes
+
+- name: Install line_profiler # %lprun in Jupyter
+  pip:
+    name: line_profiler
+    executable: pip3
+  become: yes
+
+- name: Enabling Widgetsnbextension
+  shell: jupyter nbextension enable --py widgetsnbextension
+
+- name: opam init
+  shell: opam init -y https://opam.ocaml.org/1.1
+  become: yes
+  become_user: "jhubuser"
+
+- name: opam config eval
+  shell: eval `opam config env`
+  become: yes
+  become_user: "jhubuser"
+
+- name: opam install depext
+  shell: opam install -y depext
+  become: yes
+  become_user: "jhubuser"
+
+- name: opam depext conf-pkg-config
+  shell: eval `opam config env`; opam depext conf-pkg-config
+  become: yes
+  become_user: "jhubuser"
+
+- name: opam depext iocaml-kernel
+  shell: eval `opam config env`; opam depext iocaml-kernel
+  become: yes
+  become_user: "jhubuser"
+
+- name: opam install iocaml
+  shell: eval `opam config env`; opam install -y iocaml
+  become: yes
+  ignore_errors: yes
+  become_user: "jhubuser"
+
+- name: Create directory for iocaml kernel.json
+  file:
+    name: /usr/local/share/jupyter/kernels/iocaml
+    state: directory
+  become: yes
+
+- name: Copy iocaml kernel.json
+  template:
+    src: templates/iocaml-kernel.json.j2
+    dest: /usr/local/share/jupyter/kernels/iocaml/kernel.json
+  become: yes
+
+- name: init scilab kernel
+  shell: python3 -m scilab_kernel install
+  become: yes
+
+- name: Clone c kernel repo
+  git:
+    repo: https://github.com/brendan-rius/jupyter-c-kernel.git
+    dest: /root/jupyter-c-kernel
+    update: yes
+  become: yes
+  ignore_errors: yes
+
+- name: init c kernel
+  shell: jupyter-kernelspec install c_spec/
+  args:
+    chdir: /root/jupyter-c-kernel
+  become: yes
+  ignore_errors: yes
+
+- name: remove terminal
+  pip:
+    name: terminado
+    executable: pip
+    state: absent
+  become: yes

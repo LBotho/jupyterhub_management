@@ -1,0 +1,15 @@
+dashboard:
+    resource: "@DashboardBundle/Controller/"
+    type:     annotation
+
+user:
+    resource: "@UserBundle/Controller/"
+    type:     annotation
+
+nbgrader:
+    resource: "@NbgraderBundle/Controller/"
+    type:     annotation
+
+notebooks:
+    resource: "@NotebooksBundle/Controller/"
+    type:     annotation

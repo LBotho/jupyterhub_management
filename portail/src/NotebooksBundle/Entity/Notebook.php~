@@ -1,0 +1,38 @@
+<?php
+namespace NotebooksBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\Common\Collections\ArrayCollection;
+
+/**
+ * Notebook
+ *
+ * @ORM\Table(name="notebook")
+ * @ORM\Entity(repositoryClass="NotebookBundle\Repository\NotebookRepository")
+ */
+class Notebook
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $label;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\NbgraderBundle\Entity\Assignment", mappedBy="notebook")
+     */
+    private $assignments;
+
+    public function __construct() {
+        $this->assignments = new ArrayCollection();
+    }
+}

@@ -1,0 +1,19 @@
+- name: Clone management portail
+  git:
+    repo: https://web.isen-bretagne.fr/gitlab/lbotho18/portail.git
+    dest: /var/www/html/management
+    update: yes
+  become: yes
+  ignore_errors: yes
+
+- name: Fix permissions
+  shell: chown www-data -R /var/www/html/management/
+
+- name: Composer install symfony
+  shell: (cd /var/www/html/management && composer install --no-interaction)
+
+- name: Symfony create database
+  shell: (cd /var/www/html/management && php bin/console doctrine:database:create --if-not-exists)
+
+- name: Symfony create schema
+  shell: (cd /var/www/html/management && php bin/console doctrine:schema:update --force)
